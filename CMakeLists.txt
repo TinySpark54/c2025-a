@@ -4,7 +4,8 @@ project(c2025_challenge)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(p01_running_letter level1/p01_running_letter/main.c)
+add_executable(p01_running_letter level1/p01_running_letter/main.c
+)
 
 add_executable(p02_is_prime  level1/p02_is_prime/main.c)
 
@@ -23,3 +24,4 @@ add_executable(p08_push_boxes  level1/p08_push_boxes/main.c)
 add_executable(p09_linked_list  level1/p09_linked_list/main.c)
 
 add_executable(p10_warehouse  level1/p10_warehouse/main.c)
+add_executable(new_target test.c)
