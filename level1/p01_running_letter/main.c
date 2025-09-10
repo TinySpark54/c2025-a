@@ -2,34 +2,41 @@
 #include <windows.h>
 #include <string.h>
 #define MAXLEN 100
+//#define DEBUG
 enum DIR{forward=0, backward};
 
-int GetWidth(HWND hd,RECT rc,CONSOLE_FONT_INFOEX ft);
+int GetWidth(HANDLE hd,CONSOLE_SCREEN_BUFFER_INFO csbi);
 
 
 int main() {
-    HWND handle = GetConsoleWindow();
+    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if (handle == NULL) {
         printf("GetConsoleWindow failed!\n");
         system("pause");
         return 1;
     }
-    RECT rect;
-    CONSOLE_FONT_INFOEX font;
-    font.cbSize = sizeof(font);
+    CONSOLE_SCREEN_BUFFER_INFO ScreenInfo;
 
     char word[MAXLEN] = "\0";
     scanf("%s", word);
 
     char space[MAXLEN] = "\0";
     int len = strlen(word);
-    int location  = 0;
+
     enum DIR direction = forward;
     int width = 0;
 
     while (1) {
-        width = GetWidth(handle, rect,font);
+        system("cls");
+
+        width = GetWidth(handle, ScreenInfo);
+#ifdef DEBUG
+        printf("%d",width);
+        system("pause");
+#endif
         if (width==0) {
+            printf("false");
+            system("pause");
             return 1;
         }
         if (width <= len) {
@@ -39,11 +46,10 @@ int main() {
         }
 
         printf("%s%s", space,word);
-
-        if (location + len >= width) {
+        if (strlen(space) + len >= width) {
             direction = backward;
         }
-        else if (location == 0) {
+        else if (strlen(space) == 0) {
             direction = forward;
         }
         switch (direction) {
@@ -51,18 +57,14 @@ int main() {
                 strcat(space, " ");
                 break;
             case 1:
+                space[strlen(space)] = 0;
                 space[strlen(space) - 1] = '\0';
         }
+        _sleep(50);
     }
     return 0;
 }
-int GetWidth(HWND hd,RECT rc,CONSOLE_FONT_INFOEX ft) {
-    if (GetClientRect(hd, &rc)==0) {
-        printf("GetClientRect failed!\n");
-        system("pause");
-        return 0;
-    };
-    GetCurrentConsoleFontEx(hd, FALSE, &ft);
-
-    return (rc.right-rc.left)/ft.dwFontSize.X;
+int GetWidth(HANDLE hd,CONSOLE_SCREEN_BUFFER_INFO csbi) {
+    GetConsoleScreenBufferInfo(hd, &csbi);
+    return csbi.dwSize.X;
 }
