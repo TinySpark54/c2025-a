@@ -15,7 +15,8 @@ add_executable(p04_goldbach  level1/p04_goldbach/main.c)
 
 add_executable(p05_encrypt_decrypt  level1/p05_encrypt_decrypt/main.c)
 
-add_executable(p06_hanoi  level1/p06_hanoi/main.c)
+add_executable(p06_hanoi  level1/p06_hanoi/main.c
+        level1/p06_hanoi/hanoi.c)
 
 add_executable(p07_maze  level1/p07_maze/main.c)
 
