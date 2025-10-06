@@ -45,13 +45,16 @@ int main() {
     int x = BEGIN_X;
     int y = BEGIN_Y;
     int key;
-    int color = 0xffff00;
+
+    CONSOLE_CURSOR_INFO cursor_info = {1, 0}; // 第二个值为0表示隐藏光标
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursor_info);
+
     for(int i=0;i<HEIGHT;i++) {
         printf(map[i]);
         printf("\n");
     }
 
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | color);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_GREEN);
     gotoxy(BEGIN_X,BEGIN_Y);
     while(1) {
         if ( _getch() == 224){//如果有按键按下，则_kbhit()函数返回真
@@ -82,8 +85,9 @@ int main() {
             }
             gotoxy(x,y);
             if (x == END_X && y == END_Y) {
-                gotoxy(0,HEIGHT+1);
-                //SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | 0x);
+                COORD scrn;
+                scrn.X = 0; scrn.Y = HEIGHT;
+                SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),scrn);
                 printf("You win!");
                 system("pause");
                 return 0;
