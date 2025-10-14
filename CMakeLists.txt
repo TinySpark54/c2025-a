@@ -29,4 +29,4 @@ add_executable(p09_linked_list  level1/p09_linked_list/main.c)
 
 add_executable(p10_warehouse  level1/p10_warehouse/main.c)
 
-add_executable(test level1/test.c)
+add_executable(test test/test.c)

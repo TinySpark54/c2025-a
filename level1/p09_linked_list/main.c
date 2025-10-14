@@ -10,9 +10,9 @@ struct Node *CreateList() {
     return NULL;
 }
 
-int insert(struct Node **list, int data) {
+int insert(struct Node **list, int name) {
     struct Node *temp = (struct Node *)malloc(sizeof(struct Node));
-    temp->data = data;
+    temp->data = name;
     temp->next = *list ;
     *list = temp;
     return 0;
@@ -52,9 +52,9 @@ int find(struct Node *list, int data, int start) {
     return -1;
 }
 
-void display(struct Node *index) {
-    for (; index != NULL; index = index -> next) {
-        printf("%d ", index -> data);
+void display(struct Node *list) {
+    for (; list != NULL; list = list -> next) {
+        printf("%d ", list -> data);
     }
     printf("\n");
 }
