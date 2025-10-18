@@ -8,6 +8,7 @@
 #define KEY_LEFT 75
 #define KEY_RIGHT 77
 #define CHOOSING "-> "
+#define MAX_LENGTH 100
 
 struct Node{
     char *name;
@@ -19,13 +20,13 @@ struct Node *CreateList() {
     return NULL;
 }
 
-int insert(struct Node **list, char *name, int number);
+int insert(struct Node **list, char name[MAX_LENGTH], int number);
 int delete(struct Node **list, int index);
-struct Node *find(struct Node *list, char *name);
+struct Node *find(struct Node *list, char name[MAX_LENGTH]);
 
 void display(struct Node *list);
-void in_warehouse(struct Node *list, char *name,int number);
-void out_warehouse(struct Node *list, char *name,int number);
+void in_warehouse (struct Node **list, char name[MAX_LENGTH],int number);
+void out_warehouse(struct Node **list, char name[MAX_LENGTH],int number);
 
 void save(struct Node *list);
 void load(struct Node **list);
@@ -47,21 +48,23 @@ int main() {
             case 1:
                 printf("请输入要入库的品类及数量（空格隔开）：");
                 scanf("%s %d",name,&number);
-                in_warehouse(list,name,number);
+                in_warehouse(&list,name,number);
                 break;
             case 2:
                 printf("请输入要出库的品类及数量（空格隔开）：");
                 scanf("%s %d",name,&number);
-                out_warehouse(list,name,number);
+                out_warehouse(&list,name,number);
                 break;
         }
         Sleep(1000);
     }
 }
 
-int insert(struct Node **list, char *name, int number) {
+int insert(struct Node **list, char name[MAX_LENGTH], int number) {
     struct Node *temp = (struct Node *)malloc(sizeof(struct Node));
-    temp->name = name;
+
+    temp->name = (char *)malloc(strlen(name) + 1);
+    strcpy(temp->name,name);
     temp->number = number;
     temp->next = *list ;
     *list = temp;
@@ -70,21 +73,21 @@ int insert(struct Node **list, char *name, int number) {
 
 int delete(struct Node **list, int index) {//改成二重指针
     struct Node **change = list;
-    struct Node *temp1;
+    struct Node **temp1;
     for (int i = 0; i < index; i++) {
-        temp1 = *change;
+        temp1 = change;
         if ((*change)->next == NULL) {
             return 1;
         }
-        change = &(temp1->next);
+        change = &((*temp1)->next);
     }
-    free(*change);
     free((*change)->name);
+    free(*change);
     *change =(*change)->next ;
     return 0;
 }
 
-struct Node *find(struct Node *list, char *name) {
+struct Node *find(struct Node *list, char name[MAX_LENGTH]) {
     for (int i=0; list != NULL;list = list->next,i++) {
         if (list->name == name) {
             return list;
@@ -100,35 +103,37 @@ void display(struct Node *list) {
     printf("\n");
 }
 
-void in_warehouse(struct Node *list, char *name,int number) {
-    for (int i=0; list != NULL;list = list->next,i++) {
-        if (list->name == name) {
-            list->number += number;
-            printf("已入库：%s %d件\n现有%d件\n",name,number,list->number);
+void in_warehouse(struct Node **list, char name[MAX_LENGTH],int number) {
+    struct Node *temp = *list;
+    for (int i=0; temp != NULL;temp = temp->next,i++) {
+        if (strcmp(temp->name,name) == 0) {
+            temp->number += number;
+            printf("已入库：%s %d件\n现有%d件\n",name,number,temp->number);
             return;
         }
     }
-    insert(&(list),name,number);
+    insert(list,name,number);
     printf("新入库：%s %d件\n",name,number);
 }
 
-void out_warehouse(struct Node *list, char *name,int number) {
-    for (int i=0; list ->next != NULL;list = list->next,i++) {
-        if (list->next->name == name) {
-            if (list -> next -> number < number)
+void out_warehouse(struct Node **list, char name[MAX_LENGTH],int number) {
+    struct Node **temp = list;
+    for (int i=0; *temp != NULL;temp = &((*temp)->next),i++) {
+        if (strcmp((*temp)->name, name) == 0) {
+            if ((*temp) -> number < number)
             {
-                printf("数量不足！现有%d件" ,list -> next -> number);
+                printf("数量不足！现有%d件" ,(*temp) -> number);
 
             }
-            else if (list -> next -> number == number)
+            else if ((*temp) -> number == number)
             {
-                delete(&list,1);
+                delete(list,i);
                 printf("%s已全部出库",name);
             }
             else
             {
-                list -> next -> number -= number;
-                printf("已出库：%s %d件\n现有%d件\n",name,number,list -> next -> number);
+                (*temp) -> number -= number;
+                printf("已出库：%s %d件\n现有%d件\n",name,number,(*temp) -> number);
             }
             return;
         }
@@ -140,7 +145,7 @@ void save(struct Node *list)
 {
     FILE *fp = fopen("save.txt","w");
     for (; list != NULL; list = list->next) {
-        fprintf(fp,"%s %d\n",list->name,list->number);
+        fprintf(fp,"\n%s %d",list->name,list->number);
     }
     fclose(fp);
 }
@@ -155,7 +160,8 @@ void load(struct Node **list)
         fp = fopen("save.txt","r");
     }
     struct Node *temp;
-    while (!feof(fp)) {
+    fpos_t position;
+    while (fgetc(fp)!=EOF) {
         fscanf(fp,"%s %d", name, &number);
         insert(list,name,number);
     }
